@@ -21,36 +21,36 @@ class LinkedList {
         if(this.length === 0)
         {    
             this._head = newNode;
-            this._tail = new Node();
-            this._head.next = this._tail;
-            this._tail.prev = this._head.next;
+            this._tail = newNode;
         }
         else
         {
-            this._tail.prev.next = newNode;
-            newNode.prev = this._tail.prev;
+            this._tail.next = newNode;
+            newNode.prev = this._tail;
             this._tail = newNode;
         }  
 
         this.length++;    
+        return this;
     }
 
     head() {
-        return this._head;
+        return this._head.data;
     }
 
     tail() {
-        return this._tail;
+        return this._tail.data;
     }
 
     at(index) {
         var findNode = this._head;
         if(index > this.length)
             return;
-        while(index !== this.length)
+        for(let i = 0; i <= this.length && i !== index; i++)
         {
             findNode = findNode.next;
         }
+
         return findNode.data;
     }
 
@@ -58,61 +58,89 @@ class LinkedList {
         var findNode = this._head;
         if(index > this.length)
             return;
-        while(index !== this.length)
+        for(let i = 0; i <= this.length && i !== index; i++)
         {
             findNode = findNode.next;
         }
-        findNode.data = data;
+        var newNode = new Node(data, findNode.prev, findNode);
+        if( this._head === this._tail)
+        {
+            this._head = newNode;
+            this._tail = newNode;
+            return this;
+        }
+        findNode.prev.next = newNode;
+        findNode.prev = newNode;
+        return this;
     }
 
     isEmpty() {
-        return this._head === this._tail;
+        return this._head.next === null && this._head.data === null;
     }
 
     clear() {
         this._head = new Node();
         this._tail = this._head;
+        this.length = 0;
+        return this;
     }
 
     deleteAt(index) {
+        
         var findNode = this._head;
-        if(index > this.length || this.isEmpty)
-            return;
-        while(index !== this.length)
+        if(index > this.length)
+            return this;
+        for(let i = 0; i < this.length && i !== index; i++)
         {
             findNode = findNode.next;
         }
 
         if(findNode.prev === null)
-            this._head = findNode.next;
+        {
+            if(this.length < 2)
+            {
+                this.clear();
+            }
+            else
+            {
+                this._head = findNode.next;
+                this._head.prev = null;
+            }
+            
+        }
         else if(findNode.next === null)
+        {
             this._tail = findNode.prev;
+            this._tail.next = null;
+        }
         else 
-            findNode.prev = findNode.next;
+        {    
+            findNode.prev.next = findNode.next;
+            findNode.next.prev = findNode.prev;
+        }
+        this.length--;
+        return this;
     }
 
     reverse() {
-        if(this.isEmpty)
+        if(this.isEmpty())
             return;
-        var node = this._head.next;
-        for(var i = 1; i < this.length - 1; i++)
+        var node = this._head;
+        for(var i = 0; i < this.length; i++)
         {
             let temp = node.prev;
             node.prev = node.next;
             node.next = temp;
             node = node.prev;
         }
-        let temp2 = this._tail;
-        this._tail = this._head;
-        this._head = temp2;
-        this._tail.prev = this._tail.next;
-        this._tail.next = null;
-        this._head.next = this._head.prev;
-        this._head.prev = null;
+        let temp = this._head;
+        this._head = this._tail;
+        this._tail = temp;
+        return this;
     }
 
     indexOf(data) {
-        if(this.isEmpty)
+        if(this.isEmpty())
             return -1;
         var node = this._head;
         for(var i = 0; i < this.length; i++)
